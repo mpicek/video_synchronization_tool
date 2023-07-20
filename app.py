@@ -19,7 +19,7 @@ class App:
         self.cap2, fps2 = self.load_video(self.video_path2)
 
         target_fps = None
-        temp_file_path = None
+        self.temp_file_path = None
 
 
         if same_fps:
@@ -27,14 +27,14 @@ class App:
             target_fps = min(fps1, fps2)
             if fps1 > fps2:
                 print(f"The first video has {fps1} FPS, while the second has {fps2} FPS. Converting the first video to {target_fps} FPS.")
-                temp_file_path = self.convert_fps(self.video_path1, target_fps=target_fps)
+                self.temp_file_path = self.convert_fps(self.video_path1, target_fps=target_fps)
                 self.cap1.release()
-                self.cap1, fps1 = self.load_video(temp_file_path)
+                self.cap1, fps1 = self.load_video(self.temp_file_path)
             elif fps1 < fps2:
                 print(f"The first video has {fps1} FPS, while the second has {fps2} FPS. Converting the second video to {target_fps} FPS.")
-                temp_file_path = self.convert_fps(self.video_path2, target_fps=target_fps)
+                self.temp_file_path = self.convert_fps(self.video_path2, target_fps=target_fps)
                 self.cap2.release()
-                self.cap2, fps2 = self.load_video(temp_file_path)
+                self.cap2, fps2 = self.load_video(self.temp_file_path)
 
         self.target_fps1 = fps1
         self.target_fps2 = fps2
@@ -84,10 +84,8 @@ class App:
 
     def convert_fps(self, video_path, target_fps):
         temp_file_path = os.path.join(os.path.dirname(video_path), "temp_same_fps_video_file.mp4")
-        # if not os.path.exists(temp_file_path):
         ffmpeg.input(video_path).output(temp_file_path, r=target_fps).run()
-        # else:
-            # raise Exception("The temp file already exists. Rename it or delete it, so that we can make a new one.")
+
         return temp_file_path
 
     def show_frame(self):
@@ -127,7 +125,7 @@ class App:
         self.show_frame()
 
 
-    def run_ffmpeg(self, temp_path=None):
+    def run_ffmpeg(self):
         # get directory of the original videos
         directory1 = os.path.dirname(self.video_path1)
         directory2 = os.path.dirname(self.video_path2)
@@ -153,8 +151,8 @@ class App:
         self.write_video(self.cap1, self.frame1, output_path1, self.target_fps1)
         self.write_video(self.cap2, self.frame2, output_path2, self.target_fps2)
 
-        if temp_path is not None and os.path.exists(temp_path):
-            os.remove(temp_path)
+        if self.temp_file_path is not None and os.path.exists(self.temp_file_path):
+            os.remove(self.temp_file_path)
 
         # Print success message and close application
         print("FINISHED - the synchronized videos are saved")
