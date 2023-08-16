@@ -12,15 +12,14 @@ class App:
         self.master = master
         self.frame1 = 0
         self.frame2 = 0
-        self.video_path1 = filedialog.askopenfilename(initialdir='/home/mpicek/repos/Trunk_KinRec/data/')
-        self.video_path2 = filedialog.askopenfilename(initialdir='/home/mpicek/repos/Trunk_KinRec/data/')
+        self.video_path1 = filedialog.askopenfilename(initialdir='/home/mpicek/Downloads/Recordings_cp/')
+        self.video_path2 = filedialog.askopenfilename(initialdir='/home/mpicek/Downloads/Recordings_cp/')
 
         self.cap1, fps1 = self.load_video(self.video_path1)
         self.cap2, fps2 = self.load_video(self.video_path2)
 
         target_fps = None
         self.temp_file_path = None
-
 
         if same_fps:
             # we need both videos to have the same FPS
@@ -49,28 +48,45 @@ class App:
         self.canvas1.grid(row=0, column=0)
         self.canvas2.grid(row=0, column=1)
 
-        self.button1_left = tk.Button(master, text="<<", command=lambda: self.skip_frames1(-20))
-        self.button1_right = tk.Button(master, text=">>", command=lambda: self.skip_frames1(20))
-        self.button2_left = tk.Button(master, text="<<", command=lambda: self.skip_frames2(-20))
-        self.button2_right = tk.Button(master, text=">>", command=lambda: self.skip_frames2(20))
+        self.button1_left_super = tk.Button(master, text="<< -150", command=lambda: self.skip_frames1(-150))
+        self.button1_right_super = tk.Button(master, text="+150 >>", command=lambda: self.skip_frames1(150))
+        self.button2_left_super = tk.Button(master, text="<< -150", command=lambda: self.skip_frames2(-150))
+        self.button2_right_super = tk.Button(master, text="+150 >>", command=lambda: self.skip_frames2(150))
 
-        self.button1_left.grid(row=1, column=0, sticky='w')
-        self.button1_right.grid(row=1, column=0, sticky='e')
-        self.button2_left.grid(row=1, column=1, sticky='w')
-        self.button2_right.grid(row=1, column=1, sticky='e')
+        self.button1_left_super.grid(row=3, column=0, sticky='w')
+        self.button1_right_super.grid(row=3, column=0, sticky='e')
+        self.button2_left_super.grid(row=3, column=1, sticky='w')
+        self.button2_right_super.grid(row=3, column=1, sticky='e')
 
-        self.button1_left_one = tk.Button(master, text="<", command=lambda: self.skip_frames1(-1))
-        self.button1_right_one = tk.Button(master, text=">", command=lambda: self.skip_frames1(1))
-        self.button2_left_one = tk.Button(master, text="<", command=lambda: self.skip_frames2(-1))
-        self.button2_right_one = tk.Button(master, text=">", command=lambda: self.skip_frames2(1))
 
-        self.button1_left_one.grid(row=2, column=0, sticky='w')
-        self.button1_right_one.grid(row=2, column=0, sticky='e')
-        self.button2_left_one.grid(row=2, column=1, sticky='w')
-        self.button2_right_one.grid(row=2, column=1, sticky='e')
+        self.button1_left = tk.Button(master, text="<< -20", command=lambda: self.skip_frames1(-20))
+        self.button1_right = tk.Button(master, text="+20 >>", command=lambda: self.skip_frames1(20))
+        self.button2_left = tk.Button(master, text="<< -20", command=lambda: self.skip_frames2(-20))
+        self.button2_right = tk.Button(master, text="+20 >>", command=lambda: self.skip_frames2(20))
+
+        self.button1_left.grid(row=2, column=0, sticky='w')
+        self.button1_right.grid(row=2, column=0, sticky='e')
+        self.button2_left.grid(row=2, column=1, sticky='w')
+        self.button2_right.grid(row=2, column=1, sticky='e')
+
+        self.button1_left_one = tk.Button(master, text="< -1", command=lambda: self.skip_frames1(-1))
+        self.button1_right_one = tk.Button(master, text="+1 >", command=lambda: self.skip_frames1(1))
+        self.button2_left_one = tk.Button(master, text="< -1", command=lambda: self.skip_frames2(-1))
+        self.button2_right_one = tk.Button(master, text="+1 >", command=lambda: self.skip_frames2(1))
+
+        self.button1_left_one.grid(row=1, column=0, sticky='w')
+        self.button1_right_one.grid(row=1, column=0, sticky='e')
+        self.button2_left_one.grid(row=1, column=1, sticky='w')
+        self.button2_right_one.grid(row=1, column=1, sticky='e')
+
+        self.frame_label1 = tk.Label(master)
+        self.frame_label1.grid(row=4, column=0)
+
+        self.frame_label2 = tk.Label(master)
+        self.frame_label2.grid(row=4, column=1)
 
         self.ok_button = tk.Button(master, text="OK", command=self.run_ffmpeg)
-        self.ok_button.grid(row=3, column=0, columnspan=2)
+        self.ok_button.grid(row=4, column=0, columnspan=2)
 
         self.image1 = None
         self.image2 = None
@@ -94,6 +110,9 @@ class App:
 
         _, frame1 = self.cap1.read()
         _, frame2 = self.cap2.read()
+
+        self.frame_label1.config(text=f"Current frame: {self.frame1}")
+        self.frame_label2.config(text=f"Current frame: {self.frame2}")
 
         frame1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGB)
         frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2RGB)
@@ -157,7 +176,6 @@ class App:
         # Print success message and close application
         print("FINISHED - the synchronized videos are saved")
         self.master.destroy()
-
 
     
     def write_video(self, cap, start_frame, output_path, target_fps):
